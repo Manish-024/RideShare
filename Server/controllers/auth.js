@@ -1,5 +1,5 @@
 const User = require("../models/User");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 const nodemailer = require("nodemailer");
@@ -78,7 +78,7 @@ const signUp = async (req, res, next) => {
   const errors = validationResult(req);
 
   const { userName, email, password, otp, otpId } = req.body;
-  
+
   try {
     // Check for validation errors
     if (!errors.isEmpty()) {
@@ -86,7 +86,7 @@ const signUp = async (req, res, next) => {
     }
 
     // Check if email already exists
-    const existingUser = await User.findOne({ emailId:email.toLowerCase() });
+    const existingUser = await User.findOne({ emailId: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({ message: "Email already exists" });
     }
@@ -115,15 +115,12 @@ const signUp = async (req, res, next) => {
     // Save the user to the database
     const savedUser = await newUser.save();
 
-   
-
     res.status(201).json({ message: "User created!", userId: savedUser._id });
   } catch (err) {
     console.error("Error during sign up:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
 
 const dlVerified = async (req, res) => {
   const { dlNumber, dob } = req.body;
@@ -156,7 +153,9 @@ const getDlVerified = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    res.status(200).json({ dlVerified: user.dlNumber && user.dob ,wallet: user.wallet});
+    res
+      .status(200)
+      .json({ dlVerified: user.dlNumber && user.dob, wallet: user.wallet });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
@@ -165,7 +164,7 @@ const getDlVerified = async (req, res) => {
 
 const signUpOTP = async (req, res, next) => {
   const { email } = req.body;
-  
+
   const errors = validationResult(req);
   const verificationCode = generateUniqueCode();
   try {
@@ -181,17 +180,15 @@ const signUpOTP = async (req, res, next) => {
       secure: false,
       auth: {
         user: process.env.EMAIL,
-        pass:process.env.PASSWORD,
+        pass: process.env.PASSWORD,
       },
     });
-    
+
     const info = transporter.sendMail({
-     
       to: [email.toLowerCase()],
       subject: "Email verification for carpooling website",
       text: `Your OTP is : ${verificationCode}`,
     });
-    
 
     const emailModel = new EmailModel({
       email: email.toLowerCase(),
@@ -211,7 +208,7 @@ const signUpOTP = async (req, res, next) => {
 
 const forgotOTP = async (req, res, next) => {
   const { email } = req.body;
-  
+
   const errors = validationResult(req);
   const verificationCode = generateUniqueCode();
   try {
@@ -227,17 +224,15 @@ const forgotOTP = async (req, res, next) => {
       secure: false,
       auth: {
         user: process.env.EMAIL,
-        pass:process.env.PASSWORD,
+        pass: process.env.PASSWORD,
       },
     });
-    
+
     const info = transporter.sendMail({
-     
       to: [email.toLowerCase()],
       subject: "Email verification for carpooling website",
       text: `Your OTP is : ${verificationCode}`,
     });
-    
 
     const emailModel = new EmailModel({
       email: email.toLowerCase(),
@@ -259,7 +254,7 @@ const changePassword = async (req, res) => {
   const errors = validationResult(req);
 
   const { email, password, otp, otpId } = req.body;
- 
+
   try {
     // Check for validation errors
     if (!errors.isEmpty()) {
@@ -273,15 +268,21 @@ const changePassword = async (req, res) => {
     }
 
     // Compare email and OTP
-    if (emailModel.email !== email.toLowerCase() || emailModel.verificationCode !== otp) {
+    if (
+      emailModel.email !== email.toLowerCase() ||
+      emailModel.verificationCode !== otp
+    ) {
       return res.status(400).json({ message: "Invalid OTP" });
     }
     await emailModel.deleteOne();
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     // Update the user's password
-    const user = await User.findOneAndUpdate({ emailId:email.toLowerCase() }, { password: hashedPassword });
+    const user = await User.findOneAndUpdate(
+      { emailId: email.toLowerCase() },
+      { password: hashedPassword }
+    );
     if (!user) {
       return res.status(401).json({ message: "Invalid email" });
     }
@@ -300,5 +301,5 @@ module.exports = {
   getDlVerified,
   signUpOTP,
   forgotOTP,
-  changePassword
+  changePassword,
 };
