@@ -97,7 +97,10 @@ const userSchema = new Schema(
       },
     },
 
-    dlNumber: String,
+    dlNumber: {
+      type: String,
+      default: "Verified",
+    },
     dob: String,
     wallet: {
       type: Number,

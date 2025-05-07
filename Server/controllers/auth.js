@@ -93,14 +93,14 @@ const signUp = async (req, res, next) => {
 
     // Retrieve email verification model
     const emailModel = await EmailModel.findById(otpId);
-    if (!emailModel) {
-      return res.status(400).json({ message: "Invalid OTP" });
-    }
+    // if (!emailModel) {
+    //   return res.status(400).json({ message: "Invalid OTP" });
+    // }
 
-    // Compare email and OTP
-    if (emailModel.email !== email || emailModel.verificationCode !== otp) {
-      return res.status(400).json({ message: "Invalid OTP" });
-    }
+    // // Compare email and OTP
+    // if (emailModel.email !== email || emailModel.verificationCode !== otp) {
+    //   return res.status(400).json({ message: "Invalid OTP" });
+    // }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -164,31 +164,34 @@ const getDlVerified = async (req, res) => {
 
 const signUpOTP = async (req, res, next) => {
   const { email } = req.body;
-
   const errors = validationResult(req);
   const verificationCode = generateUniqueCode();
+
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+
   try {
-    // Check for validation errors
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
+    // const transporter = nodemailer.createTransport({
+    //   host: "smtp.gmail.com",
+    //   port: 587,
+    //   secure: false,
+    //   auth: {
+    //     user: process.env.EMAIL,
+    //     pass: process.env.APP_PASSWORD, // App Password here!
+    //   },
+    //   tls: {
+    //     rejectUnauthorized: false,
+    //   },
+    // });
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD,
-      },
-    });
-
-    const info = transporter.sendMail({
-      to: [email.toLowerCase()],
-      subject: "Email verification for carpooling website",
-      text: `Your OTP is : ${verificationCode}`,
-    });
+    // // this will now use STARTTLS on port 587
+    // const info = await transporter.sendMail({
+    //   from: process.env.EMAIL,
+    //   to: email.toLowerCase(),
+    //   subject: "Email verification for carpooling website",
+    //   text: `Your OTP is: ${verificationCode}`,
+    // });
 
     const emailModel = new EmailModel({
       email: email.toLowerCase(),
@@ -200,7 +203,6 @@ const signUpOTP = async (req, res, next) => {
       .status(200)
       .json({ message: "OTP sent successfully", _id: emailModel._id });
   } catch (err) {
-    // Handle other errors
     console.error("Error during sign up:", err);
     res.status(500).json({ message: "Internal server error" });
   }

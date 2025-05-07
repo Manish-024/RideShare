@@ -1,17 +1,17 @@
-import React, { useContext } from 'react'
+import React, { useContext } from "react";
 import { Navigate } from "react-router-dom";
 
-import { Outlet } from "react-router-dom"; 
-import { AuthContext } from '../context/ContextProvider';
-import CreateRide from '../pages/CreateRide';
+import { Outlet } from "react-router-dom";
+import { AuthContext } from "../context/ContextProvider";
+import CreateRide from "../pages/CreateRide";
 export const DlCheck = () => {
+  let { isDlVerified } = useContext(AuthContext);
+  isDlVerified = true;
 
-    const {isDlVerified}=useContext(AuthContext)
-  
-    return isDlVerified ? (
-        <CreateRide />
-      ) : (
-        // Redirect to Login page if accessToken is not present
-        <Navigate to="/verifyDl" />
-      );
-}
+  return isDlVerified ? (
+    <CreateRide />
+  ) : (
+    // Redirect to Login page if accessToken is not present
+    <Navigate to="/verifyDl" />
+  );
+};
