@@ -3,24 +3,11 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const mongoose = require("mongoose");
+const Ticket = require("../models/Ticket");
 
 // Ensure uploads directory exists
 const uploadDir = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-
-// Mongoose Schema
-const ticketSchema = new mongoose.Schema({
-  query: { type: String, required: true },
-  attachmentUrl: { type: String },
-  createdAt: { type: Date, default: Date.now },
-  status: {
-    type: String,
-    enum: ["Open", "Pending", "Resolved"],
-    default: "Open",
-  },
-});
-const Ticket = mongoose.model("Ticket", ticketSchema);
 
 // Multer storage config
 const storage = multer.diskStorage({
@@ -35,9 +22,9 @@ const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
 // POST /tickets
 router.post("/", upload.single("attachment"), async (req, res) => {
   try {
-    console.log("Hello");
-    const { query } = req.body;
-    const ticketData = { query };
+    const { query, userId } = req.body;
+    const ticketData = { query, userId };
+
     if (req.file) {
       ticketData.attachmentUrl = `/uploads/${req.file.filename}`;
     }
@@ -49,6 +36,22 @@ router.post("/", upload.single("attachment"), async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to create ticket." });
+  }
+});
+
+// GET /tickets?userId=...
+router.get("/", async (req, res) => {
+  try {
+    const { userId } = req.query;
+    if (!userId) {
+      return res.status(400).json({ error: "Missing userId query parameter." });
+    }
+
+    const tickets = await Ticket.find({ userId }).sort({ createdAt: -1 });
+    res.json(tickets);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch tickets." });
   }
 });
 

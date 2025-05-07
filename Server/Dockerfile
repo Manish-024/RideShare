@@ -3,7 +3,7 @@ WORKDIR /usr/src/app
 
 # Install production dependencies
 COPY package*.json ./
-RUN npm install --production
+RUN npm install
 
 # Copy code + env
 COPY . .
