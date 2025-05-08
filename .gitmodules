@@ -1,0 +1,9 @@
+[submodule "Client"]
+	path = Client
+	url = https://github.com/Manish-024/RideShare-Client.git
+[submodule "CustomerService"]
+	path = CustomerService
+	url = https://github.com/Manish-024/RideShare-CustomerService.git
+[submodule "Server"]
+	path = Server
+	url = https://github.com/Shilpi1437/RideShare-Server.git
