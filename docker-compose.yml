@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     container_name: carpool-client
     ports:
-      - "3000:80" # host 3000 → Nginx 80
+      - "3001:80" # host 3000 → Nginx 80
     depends_on:
       - server
       - customerservice
@@ -18,7 +18,7 @@ services:
       dockerfile: Dockerfile
     container_name: customer-service
     ports:
-      - "4000:4000"
+      - "4001:4001"
     env_file:
       - ./CustomerService/.env
     networks:
@@ -30,7 +30,7 @@ services:
       dockerfile: Dockerfile
     container_name: carpool-service
     ports:
-      - "5000:5000"
+      - "8080:8080"
     env_file:
       - ./Server/.env
     networks:
