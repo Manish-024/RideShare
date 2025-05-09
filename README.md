@@ -1,4 +1,4 @@
-## Carpooling
+## RideShare
 
 ## Features
 
@@ -50,43 +50,3 @@
 - **stripe**
 - **Perspective API**
 - **Styling:** Bootstrap, Tailwind CSS
-
-## Installation
-
-1. Clone the repository:
-   `git clone https://github.com/pratik4505/Carpooling-.git`
-
-2. Install dependencies for both frontend and backend:
-
-```
-   cd server
-   npm install
-
-   cd client
-   npm install
-```
-
-3. PUT required API KEYS in .env file (see .env.example)
-
-4. Run the application:
-
-```
-//Run frontend (in the frontend directory)
-npm run dev
-
-//Run backend (in the backend directory)
-npm start
-```
-
-5. Listen for payment confirmation(if required) using stripe CLI:
-
-```
-   stripe login
-   stripe listen --forward-to localhost:4000/payment/confirmPaymentWebhook
-```
-
-6. Access the application at `http://localhost:5173/`
-
-## Deployed Link
-
-Access the deployed site here: `https://carpooling-ebon.vercel.app/`
