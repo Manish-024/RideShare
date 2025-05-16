@@ -1,1 +1,41 @@
-test
+services:
+  client:
+    build:
+      context: ./Client
+      dockerfile: Dockerfile
+    container_name: carpool-client
+    ports:
+      - "3001:80" # host 3000 → Nginx 80
+    depends_on:
+      - server
+      - customerservice
+    networks:
+      - app-network
+
+  customerservice:
+    build:
+      context: ./CustomerService
+      dockerfile: Dockerfile
+    container_name: customer-service
+    ports:
+      - "4001:4001"
+    env_file:
+      - ./CustomerService/.env
+    networks:
+      - app-network
+
+  server:
+    build:
+      context: ./Server
+      dockerfile: Dockerfile
+    container_name: carpool-service
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./Server/.env
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
